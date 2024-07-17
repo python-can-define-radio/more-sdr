@@ -37,3 +37,6 @@
     - `hackrf_info` to verify that firmware is updated
  9. Verify `hackrf_sweep` works now
  10. Interpret `hackrf_sweep` results
+
+
+Note: We may someday try https://github.com/greatscottgadgets/plotsweep
