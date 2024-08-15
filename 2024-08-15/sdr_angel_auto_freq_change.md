@@ -4,7 +4,6 @@ Need to trim this
 
 
 ```python3
-
 #!/usr/bin/env python
 
 import time
