@@ -1,7 +1,67 @@
 Explanation should go here. Hack RF, SDR Angel ...
 
-Need to trim this
+<details><summary>Expand for in-progress attempt</summary>
 
+```python3
+#!/usr/bin/env python
+
+## Source: https://github.com/f4exb/sdrangel/blob/master/swagger/sdrangel/examples/
+## License is GPL-3.0 as required
+
+import json
+import time
+
+import requests
+
+base_url = "http://127.0.0.1:8091/sdrangel"
+
+
+
+def prettyResp(response: requests.Response) -> str:
+    """Prints json with proper indentation.
+    Prints others directly."""
+    content_type = response.headers.get("Content-Type", "")
+    if "application/json" in content_type:
+        return json.dumps(response.json(), indent=4, sort_keys=True)
+    else:
+        return response.text
+
+
+def was_success(r: requests.Response) -> bool:
+    return 200 <= r.status_code < 300
+
+
+def set_freq(freq: int):
+    base_url = "http://127.0.0.1:8091/sdrangel"
+    desired_settings = {
+        "deviceHwType": "HackRF",
+        "direction": 1,
+        "hackRFOutputSettings": {
+            "centerFrequency": freq,
+        }
+    }
+    response = requests.patch(
+        base_url + "/deviceset/0/device/settings",
+        desired_settings
+    )
+    print("Response status code:", response.status_code)
+    if was_success(response):
+        j = response.json()
+        print(json.dumps(j, indent=4, sort_keys=True))
+    else:
+        print(prettyResp(response))
+
+
+if __name__ == "__main__":
+    while True:
+        set_freq(int(105.3e6))
+        time.sleep(2)
+        set_freq(int(104.7e6))
+        time.sleep(2)
+```
+</details>
+
+<details><summary>Expand for original code</summary>
 
 ```python3
 #!/usr/bin/env python
@@ -124,3 +184,4 @@ if __name__ == "__main__":
         time.sleep(2)
 
 ```
+</details>
