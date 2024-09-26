@@ -1,6 +1,6 @@
 Explanation should go here. Hack RF, SDR Angel ...
 
-<details><summary>Expand for in-progress attempt</summary>
+## Version 1.1
 
 ```python3
 #!/usr/bin/env python
@@ -10,11 +10,13 @@ Explanation should go here. Hack RF, SDR Angel ...
 
 import json
 import time
+from typing import Literal
 
 import requests
 
-base_url = "http://127.0.0.1:8091/sdrangel"
 
+
+base_url = "http://127.0.0.1:8091/sdrangel"
 
 
 def prettyResp(response: requests.Response) -> str:
@@ -31,18 +33,29 @@ def was_success(r: requests.Response) -> bool:
     return 200 <= r.status_code < 300
 
 
-def set_freq(freq: int):
-    base_url = "http://127.0.0.1:8091/sdrangel"
-    desired_settings = {
+def make_settings(freq: int, tx_or_rx: Literal["tx", "rx"]):
+    if tx_or_rx == "tx":
+        direc = 1
+        out_in_name = "hackRFOutputSettings"
+    elif tx_or_rx == "rx":
+        direc = 0
+        out_in_name = "hackRFInputSettings"
+    else:
+        raise ValueError("Must be tx or rx")
+    
+    return {
         "deviceHwType": "HackRF",
-        "direction": 1,
-        "hackRFOutputSettings": {
+        "direction": direc,
+        out_in_name: {
             "centerFrequency": freq,
         }
     }
+
+
+def set_freq(freq: int, tx_or_rx: Literal["tx", "rx"]):
     response = requests.patch(
         base_url + "/deviceset/0/device/settings",
-        desired_settings
+        json=make_settings(freq, tx_or_rx)
     )
     print("Response status code:", response.status_code)
     if was_success(response):
@@ -52,14 +65,20 @@ def set_freq(freq: int):
         print(prettyResp(response))
 
 
+def get_settings():
+    response = requests.get(base_url + "/deviceset/0/device/settings")
+    j = response.json()
+    print(json.dumps(j, indent=4, sort_keys=True))
+    
+
 if __name__ == "__main__":
+    get_settings()
     while True:
-        set_freq(int(105.3e6))
+        set_freq(int(105.3e6), "rx")
         time.sleep(2)
-        set_freq(int(104.7e6))
+        set_freq(int(104.7e6), "rx")
         time.sleep(2)
 ```
-</details>
 
 <details><summary>Expand for original code</summary>
 
